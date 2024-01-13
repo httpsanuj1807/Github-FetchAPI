@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        text-align: center;
+        background-color: #212121;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: 900;
+        color: #fff;
+      }
+      .main {
+        padding-top: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      .input-box {
+        margin-top: 10px;
+        width: 20%;
+        padding: 8px 10px;
+        font-weight: 700;
+        border-radius: 6px;
+        border: 3px solid rgb(221, 207, 207);
+      }
+      .submit-btn {
+        margin-top: 10px;
+        margin-bottom: 40px;
+        border: 3px solid rgb(201, 198, 198);
+        cursor: pointer;
+        padding: 12px 20px;
+        background-color: #36995c;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px;
+      }
+      .submit-btn:hover {
+        background-color: #51c57d;
+      }
+      .result-div {
+        width: 30%;
+        min-width: 300px;
+        display: flex;
+        flex-direction: column;
+      }
+      .inner-div {
+        display: flex;
+        padding: 10px 0;
+      }
+      .right-div {
+        display: flex;
+        width: 50%;
+        justify-content: center;
+        align-items: center;
+        font-weight: lighter;
+      }
+      .left-div {
+        display: flex;
+        width: 50%;
+        justify-content: center;
+        align-items: center;
+        font-weight: lighter;
+      }
+      .profile-img {
+        border-radius: 40px;
+        height: 80px;
+        width: 80px;
+      }
+      table {
+        text-align: center;
+      }
+      th,
+      td {
+        padding: 5px 50px;
+      }
+      .error-line{
+        color: rgb(225, 56, 56);
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main">
+      <label for="input-name">Enter your username</label>
+      <input class="input-box" type="text" id="input-name" required />
+      <input class="submit-btn" type="submit" value="Search" />
+      <div class="result-div">
+       
+      </div>
+    </div>
+  </body>
+
+  <script>
+    
+    const submitBtn = document.querySelector(".submit-btn");
+    const inputBox = document.querySelector(".input-box");
+    submitBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const userName = inputBox.value;
+      let html='';
+
+      const xhrRequest = new XMLHttpRequest();
+      const method = "GET";
+      const requestUrl = `https://api.github.com/users/${userName}`;
+      xhrRequest.onreadystatechange = (event) => {
+        if (xhrRequest.readyState == 1) {
+          console.log("Request opened on client side.");
+        } else if (xhrRequest.readyState == 2) {
+          console.log("Request sent success.");
+        } else if (xhrRequest.readyState == 3) {
+          console.log("Downloading information...");
+        } else if (xhrRequest.readyState == 4) {
+          console.log("Response available.");
+          const response = JSON.parse(xhrRequest.responseText);
+          console.log(response);
+          if(response.message==='Not Found'){
+            html=` <span class="error-line">Please enter correct username</span>`
+            document.querySelector('.result-div').innerHTML=html;
+            setTimeout(()=>{
+                document.querySelector('.error-line').remove();
+            },4000)
+            inputBox.value="";
+          }
+          else{
+            html=`
+        <div class="inner-div">
+          <div class="left-div">
+            <img class="profile-img" src="${response.avatar_url}" />
+          </div>
+          <div class="right-div">
+            <span>${response.name ? response.name : response.login}</span>
+          </div>
+        </div>
+        <div class="inner-div">
+          <div class="left-div">
+            <span>Location</span>
+          </div>
+          <div class="right-div">
+            <span>${response.location}</span>
+          </div>
+        </div>
+        <div class="inner-div">
+          <div class="left-div">
+            <span>Bio</span>
+          </div>
+          <div class="right-div">
+            <span>${response.bio}</span>
+          </div>
+        </div>
+        <div class="inner-div">
+          <div class="left-div">
+            <span>Public repos</span>
+          </div>
+          <div class="right-div">
+            <span>${response.public_repos}</span>
+          </div>
+        </div>
+        <div class="inner-div">
+          <div class="left-div">
+            <span>Followers</span>
+          </div>
+          <div class="right-div">
+            <span>${response.followers}</span>
+          </div>
+        </div>
+      `
+        document.querySelector('.result-div').innerHTML=html;
+          }
+          
+        }
+      };
+      xhrRequest.open(method, requestUrl, true);
+      xhrRequest.send("");
+    });
+  </script>
+</html>
+
+<!-- XMLHttpRequest()
+The constructor initializes an XMLHttpRequest. It must be called before any other method calls. -->
+
+<!-- XMLHttpRequest.open()
+Initializes a request.
+
+XMLHttpRequest.send()
+Sends the request. If the request is asynchronous (which is the default), this method returns as soon as the request is sent. -->
+
+<!-- The readystatechange event is fired whenever the readyState property of the XMLHttpRequest changes. -->
+
+<!-- XMLHttpRequest.readyState Read only
+Returns a number representing the state of the request. -->
+
+<!-- XMLHttpRequest.response Read only
+Returns an ArrayBuffer, a Blob, a Document, a JavaScript object, or a string, depending on the value of XMLHttpRequest.responseType, that contains the response entity body.
+
+XMLHttpRequest.responseText Read only
+Returns a string that contains the response to the request as text, or null if the request was unsuccessful or has not yet been sent.
+
+XMLHttpRequest.responseType
+Specifies the type of the response. -->
